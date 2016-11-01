@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AsyncExpiringLazy
+namespace Strathweb
 {
     public struct ExpirationMetadata<T>
     {

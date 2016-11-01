@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AsyncExpiringLazy", "AsyncExpiringLazy\AsyncExpiringLazy.xproj", "{C28BF8E2-1F73-47FA-8E82-17BD61D711D6}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AsyncExpiringLazy.Tests", "AsyncExpiringLazy.Tests\AsyncExpiringLazy.Tests.xproj", "{82FFBF8F-2B4E-4AFD-9C24-179F18EFDE82}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{C28BF8E2-1F73-47FA-8E82-17BD61D711D6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C28BF8E2-1F73-47FA-8E82-17BD61D711D6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C28BF8E2-1F73-47FA-8E82-17BD61D711D6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{82FFBF8F-2B4E-4AFD-9C24-179F18EFDE82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{82FFBF8F-2B4E-4AFD-9C24-179F18EFDE82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{82FFBF8F-2B4E-4AFD-9C24-179F18EFDE82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{82FFBF8F-2B4E-4AFD-9C24-179F18EFDE82}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

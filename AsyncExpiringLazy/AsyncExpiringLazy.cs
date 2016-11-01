@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncExpiringLazy
+namespace Strathweb
 {
     public class AsyncExpiringLazy<T>
     {
@@ -18,7 +18,7 @@ namespace AsyncExpiringLazy
             _valueProvider = valueProvider;
         }
 
-        public bool IsValueCreated => _value.Result != null && _value.ValidUntil > DateTimeOffset.UtcNow &&;
+        public bool IsValueCreated => _value.Result != null && _value.ValidUntil > DateTimeOffset.UtcNow;
 
         public async Task<T> Value()
         {
