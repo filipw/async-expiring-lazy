@@ -24,7 +24,7 @@ namespace Strathweb
         {
             if (!IsValueCreated)
             {
-                await _syncLock.WaitAsync();
+                await _syncLock.WaitAsync().ConfigureAwait(false);
                 try
                 {
                     var result = await _valueProvider(_value).ConfigureAwait(false);
