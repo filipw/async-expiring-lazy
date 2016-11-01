@@ -8,7 +8,7 @@ namespace Strathweb
 {
     public class AsyncExpiringLazy<T>
     {
-        private static readonly SemaphoreSlim SyncLock = new SemaphoreSlim(initialCount: 1);
+        private readonly SemaphoreSlim _syncLock = new SemaphoreSlim(initialCount: 1);
         private readonly Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> _valueProvider;
         private ExpirationMetadata<T> _value;
 
@@ -24,7 +24,7 @@ namespace Strathweb
         {
             if (!IsValueCreated)
             {
-                await SyncLock.WaitAsync();
+                await _syncLock.WaitAsync();
                 try
                 {
                     var result = await _valueProvider(_value).ConfigureAwait(false);
@@ -32,7 +32,7 @@ namespace Strathweb
                 }
                 finally
                 {
-                    SyncLock.Release();
+                    _syncLock.Release();
                 }
             }
 
@@ -41,7 +41,9 @@ namespace Strathweb
 
         public void Invalidate()
         {
+            _syncLock.Wait();
             _value = default(ExpirationMetadata<T>);
+            _syncLock.Release();
         }
     }
 }
