@@ -10,7 +10,6 @@ namespace AsyncExpiringLazy
     {
         private static readonly SemaphoreSlim SyncLock = new SemaphoreSlim(initialCount: 1);
         private readonly Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> _valueProvider;
-        private DateTimeOffset? _validUntil;
         private ExpirationMetadata<T> _value;
 
         public AsyncExpiringLazy(Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> valueProvider)
@@ -19,7 +18,7 @@ namespace AsyncExpiringLazy
             _valueProvider = valueProvider;
         }
 
-        public bool IsValueCreated => _validUntil != null && _validUntil > DateTimeOffset.UtcNow && _value.Result != null;
+        public bool IsValueCreated => _value.Result != null && _value.ValidUntil > DateTimeOffset.UtcNow &&;
 
         public async Task<T> Value()
         {
@@ -30,7 +29,6 @@ namespace AsyncExpiringLazy
                 {
                     var result = await _valueProvider(_value).ConfigureAwait(false);
                     _value = result;
-                    _validUntil = result.ValidUntil;
                 }
                 finally
                 {
@@ -43,7 +41,7 @@ namespace AsyncExpiringLazy
 
         public void Invalidate()
         {
-            _validUntil = null;
+            _value = default(ExpirationMetadata<T>);
         }
     }
 }
