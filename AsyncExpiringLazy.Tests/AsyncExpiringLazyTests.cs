@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Strathweb;
 using Xunit;
@@ -23,13 +23,13 @@ namespace AsyncExpiringLazy.Tests
             });
 
             // 1. check if value is created - shouldn't
-            Assert.False(testInstance.IsValueCreated);
+            Assert.False(await testInstance.IsValueCreated());
 
             // 2. fetch lazy expiring value
             var token = await testInstance.Value();
 
             // 3a. verify it is created now
-            Assert.True(testInstance.IsValueCreated);
+            Assert.True(await testInstance.IsValueCreated());
 
             // 3b. verify it is not null
             Assert.NotNull(token.AccessToken);
@@ -48,10 +48,10 @@ namespace AsyncExpiringLazy.Tests
             Assert.NotSame(token2, token3);
 
             // 8. invalidate the value manually before it has a chance to expire
-            testInstance.Invalidate();
+            await testInstance.Invalidate();
 
             // 9. check if value is created - shouldn't anymore
-            Assert.False(testInstance.IsValueCreated);
+            Assert.False(await testInstance.IsValueCreated());
         }
     }
 }
