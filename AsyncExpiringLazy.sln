@@ -1,11 +1,11 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26114.2
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AsyncExpiringLazy", "AsyncExpiringLazy\AsyncExpiringLazy.xproj", "{C28BF8E2-1F73-47FA-8E82-17BD61D711D6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncExpiringLazy", "AsyncExpiringLazy\AsyncExpiringLazy.csproj", "{C28BF8E2-1F73-47FA-8E82-17BD61D711D6}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "AsyncExpiringLazy.Tests", "AsyncExpiringLazy.Tests\AsyncExpiringLazy.Tests.xproj", "{82FFBF8F-2B4E-4AFD-9C24-179F18EFDE82}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncExpiringLazy.Tests", "AsyncExpiringLazy.Tests\AsyncExpiringLazy.Tests.csproj", "{82FFBF8F-2B4E-4AFD-9C24-179F18EFDE82}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
