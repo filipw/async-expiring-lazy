@@ -1,13 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
+    <Description>A helper library providing async lazy cabailities to expiring objects.</Description>
     <TargetFramework>netstandard1.3</TargetFramework>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <Authors>filipw</Authors>
     <AssemblyName>AsyncExpiringLazy</AssemblyName>
     <PackageId>Strathweb.AsyncExpiringLazy</PackageId>
     <PackageTargetFallback>$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <PackageIconUrl>https://raw.githubusercontent.com/filipw/Strathweb.TypedRouting.AspNetCore/master/strathweb.png</PackageIconUrl>
+    <PackageProjectUrl>https://github.com/filipw/async-expiring-lazy</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/filipw/async-expiring-lazy/blob/master/LICENSE</PackageLicenseUrl>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/filipw/async-expiring-lazy.git</RepositoryUrl>
+    <PackageTags>async;lazy;expiring</PackageTags>
   </PropertyGroup>
 
 </Project>
