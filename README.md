@@ -3,6 +3,16 @@
 
 See [blog article](www.strathweb.com/2016/11/lazy-async-initialization-for-expiring-objects/) for more background details.
 
+## Installation
+
+Grab the Nuget package called [Strathweb.AsyncExpiringLazy](https://www.nuget.org/packages/Strathweb.AsyncExpiringLazy/). Built with .NET Standard 1.3 and compatible with:
+
+ - .NET 4.6+
+ - .NET Core
+ - Xamarin
+ - Mono
+ - Universal Windows Platform
+ 
 Latest version: [![Nuget](http://img.shields.io/nuget/v/Strathweb.AsyncExpiringLazy.svg?maxAge=10800)](https://www.nuget.org/packages/Strathweb.AsyncExpiringLazy/)
 
 ## Usage
