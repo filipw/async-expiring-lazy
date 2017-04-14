@@ -42,19 +42,10 @@ namespace Strathweb
                 {
                     return _value.Result;
                 }
-            }
-            finally
-            {
-                _syncLock.Release();
-            }
 
-            await _syncLock.WaitAsync();
-            try
-            {
                 var result = await _valueProvider(_value).ConfigureAwait(false);
                 _value = result;
                 return _value.Result;
-
             }
             finally
             {
