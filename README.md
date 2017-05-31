@@ -5,9 +5,9 @@ See [blog article](www.strathweb.com/2016/11/lazy-async-initialization-for-expir
 
 ## Installation
 
-Grab the Nuget package called [Strathweb.AsyncExpiringLazy](https://www.nuget.org/packages/Strathweb.AsyncExpiringLazy/). Built with .NET Standard 1.3 and compatible with:
+Grab the Nuget package called [Strathweb.AsyncExpiringLazy](https://www.nuget.org/packages/Strathweb.AsyncExpiringLazy/). Built with .NET Standard 1.1 and compatible with:
 
- - .NET 4.6+
+ - .NET 4.5+
  - .NET Core
  - Xamarin
  - Mono
