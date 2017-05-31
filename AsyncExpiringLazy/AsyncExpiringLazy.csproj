@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <Description>A helper library providing async lazy cabailities to expiring objects.</Description>
-    <TargetFramework>netstandard1.3</TargetFramework>
-    <VersionPrefix>1.0.1</VersionPrefix>
+    <TargetFramework>netstandard1.1</TargetFramework>
+    <VersionPrefix>1.1.0</VersionPrefix>
     <Authors>filipw</Authors>
     <AssemblyName>AsyncExpiringLazy</AssemblyName>
     <PackageId>Strathweb.AsyncExpiringLazy</PackageId>
