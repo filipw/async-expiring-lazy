@@ -5,6 +5,12 @@ using AsyncExpiringLazy;
 
 namespace Strathweb
 {
+    /// <summary>
+    /// Eager implementation of the <see cref="AsyncExpiringLazy{T}"/> which uses a background worker to refresh the item.
+    /// It performs better in the situations when factory method is slow and having a fast access to the fresh and ready T item is important.
+    /// The background worker is started after the first call to the <see cref="Value"/> method.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
     public class EagerAsyncExpiringLazy<T> : IDisposable
     {
         private readonly Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> _valueProvider;
