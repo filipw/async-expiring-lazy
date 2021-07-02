@@ -18,7 +18,7 @@ namespace AsyncExpiringLazy
         {
             _factory = factory;
             _onNewItem = onNewItem;
-            _monitorTask = new Task(async () => await RunMonitor());
+            _monitorTask = new Task(async () => await RunMonitor().ConfigureAwait(false));
         }
 
         public void StartIfNotStarted()
@@ -35,12 +35,12 @@ namespace AsyncExpiringLazy
             {
                 try
                 {
-                    var metadata = await _factory();
+                    var metadata = await _factory().ConfigureAwait(false);
                     NotifyAboutNewItem(metadata);
                     
                     var checkAgainIn = CalculateNextIteration(metadata);
                     Debug.WriteLine($"Sleeping the connection monitor for {checkAgainIn.TotalSeconds} seconds");
-                    await Task.Delay(checkAgainIn, _cts.Token);
+                    await Task.Delay(checkAgainIn, _cts.Token).ConfigureAwait(false);
                 }
                 catch (TaskCanceledException)
                 {

@@ -37,7 +37,7 @@ namespace Strathweb
             }
 
             _monitor.StartIfNotStarted();
-            await _itemPrepared.WaitAsync();
+            await _itemPrepared.WaitAsync().ConfigureAwait(false);
 
             lock (_lock)
             {
@@ -48,7 +48,7 @@ namespace Strathweb
             }
 
             Debug.WriteLine("Background monitor was not able to provide usable item, creating new manually");
-            var newItem = await GetNewItem();
+            var newItem = await GetNewItem().ConfigureAwait(false);
             OnNewItem(newItem);
             return newItem.Result;
         }
@@ -61,7 +61,7 @@ namespace Strathweb
                 copy = _value;
             }
             
-            return await _valueProvider(copy);
+            return await _valueProvider(copy).ConfigureAwait(false);
         }
 
         private void OnNewItem(ExpirationMetadata<T> newItem)
