@@ -10,7 +10,7 @@ namespace AsyncExpiringLazy.Tests
         [Fact]
         public async Task End2End()
         {
-            var testInstance = new EagerAsyncExpiringLazy<TokenResponse>(async metadata =>
+            var testInstance = new AsyncExpiringEager<TokenResponse>(async metadata =>
             {
                 await Task.Delay(1000);
                 return new ExpirationMetadata<TokenResponse>

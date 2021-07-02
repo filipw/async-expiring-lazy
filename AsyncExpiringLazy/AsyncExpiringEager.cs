@@ -11,7 +11,7 @@ namespace Strathweb
     /// The background worker is started after the first call to the <see cref="Value"/> method.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class EagerAsyncExpiringLazy<T> : IDisposable
+    public class AsyncExpiringEager<T> : IDisposable
     {
         private readonly Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> _valueProvider;
         private ExpirationMetadata<T> _value;
@@ -21,7 +21,7 @@ namespace Strathweb
         private readonly AsyncManualResetEvent _itemPrepared = new AsyncManualResetEvent();
         private bool _disposed;
 
-        public EagerAsyncExpiringLazy(Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> valueProvider)
+        public AsyncExpiringEager(Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> valueProvider)
         {
             _valueProvider = valueProvider ?? throw new ArgumentNullException(nameof(valueProvider));
             _monitor = new BackgroundMonitor<T>(GetNewItem, OnNewItem);
@@ -39,7 +39,7 @@ namespace Strathweb
         {
             if (_disposed)
             {
-                throw new ObjectDisposedException(nameof(EagerAsyncExpiringLazy<T>), "Background monitor is disposed");
+                throw new ObjectDisposedException(nameof(AsyncExpiringEager<T>), "Background monitor is disposed");
             }
 
             _monitor.StartIfNotStarted();
