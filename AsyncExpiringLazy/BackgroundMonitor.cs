@@ -38,9 +38,12 @@ namespace AsyncExpiringLazy
                     var metadata = await _factory().ConfigureAwait(false);
                     NotifyAboutNewItem(metadata);
                     
-                    var checkAgainIn = CalculateNextIteration(metadata);
-                    Debug.WriteLine($"Sleeping the connection monitor for {checkAgainIn.TotalSeconds} seconds");
-                    await Task.Delay(checkAgainIn, _cts.Token).ConfigureAwait(false);
+                    var expiresIn = CalculateNextIteration(metadata);
+                    if (expiresIn > TimeSpan.Zero)
+                    {
+                        Debug.WriteLine($"Sleeping the connection monitor for {expiresIn.TotalSeconds} seconds");
+                        await Task.Delay(expiresIn, _cts.Token).ConfigureAwait(false);
+                    }
                 }
                 catch (TaskCanceledException)
                 {
@@ -59,11 +62,7 @@ namespace AsyncExpiringLazy
 
         private void NotifyAboutNewItem(ExpirationMetadata<T> metadata) => _onNewItem(metadata);
 
-        private static TimeSpan CalculateNextIteration(ExpirationMetadata<T> metadata)
-        {
-            var unusableIn = metadata.ValidUntil - DateTimeOffset.UtcNow;
-            return unusableIn <= TimeSpan.Zero ? TimeSpan.FromTicks(1) : unusableIn;
-        }
+        private static TimeSpan CalculateNextIteration(ExpirationMetadata<T> metadata) => metadata.ValidUntil - DateTimeOffset.UtcNow;
 
         public void Dispose()
         {
