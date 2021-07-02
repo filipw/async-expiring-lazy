@@ -66,13 +66,13 @@ namespace Strathweb
             {
                 copy = _value;
             }
-            
+
             return await _valueProvider(copy).ConfigureAwait(false);
         }
 
         private void OnNewItem(ExpirationMetadata<T> newItem)
         {
-            lock(_lock)
+            lock (_lock)
             {
                 _value = newItem;
 
