@@ -47,7 +47,7 @@ namespace Strathweb
 
             lock (_lock)
             {
-                if (_value.ValidUntil > DateTimeOffset.UtcNow)
+                if (_value.ExpiresIn > TimeSpan.Zero)
                 {
                     return _value.Result;
                 }

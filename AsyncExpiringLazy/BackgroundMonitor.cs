@@ -37,8 +37,8 @@ namespace AsyncExpiringLazy
                 {
                     var metadata = await _factory().ConfigureAwait(false);
                     NotifyAboutNewItem(metadata);
-                    
-                    var expiresIn = CalculateNextIteration(metadata);
+
+                    var expiresIn = metadata.ExpiresIn;
                     if (expiresIn > TimeSpan.Zero)
                     {
                         Debug.WriteLine($"Sleeping the connection monitor for {expiresIn.TotalSeconds} seconds");
@@ -61,8 +61,6 @@ namespace AsyncExpiringLazy
         }
 
         private void NotifyAboutNewItem(ExpirationMetadata<T> metadata) => _onNewItem(metadata);
-
-        private static TimeSpan CalculateNextIteration(ExpirationMetadata<T> metadata) => metadata.ValidUntil - DateTimeOffset.UtcNow;
 
         public void Dispose()
         {
