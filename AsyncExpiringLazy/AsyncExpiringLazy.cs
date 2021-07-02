@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,8 +12,7 @@ namespace Strathweb
 
         public AsyncExpiringLazy(Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> valueProvider)
         {
-            if (valueProvider == null) throw new ArgumentNullException(nameof(valueProvider));
-            _valueProvider = valueProvider;
+            _valueProvider = valueProvider ?? throw new ArgumentNullException(nameof(valueProvider));
         }
 
         private bool IsValueCreatedInternal => _value.Result != null && _value.ValidUntil > DateTimeOffset.UtcNow;

@@ -10,7 +10,6 @@ namespace AsyncExpiringLazy.Tests
         [Fact]
         public async Task End2End()
         {
-            var options = new EagerAsyncExpiringLazyOptions();
             var testInstance = new EagerAsyncExpiringLazy<TokenResponse>(async metadata =>
             {
                 await Task.Delay(1000);
@@ -21,7 +20,7 @@ namespace AsyncExpiringLazy.Tests
                         AccessToken = Guid.NewGuid().ToString()
                     }, ValidUntil = DateTimeOffset.UtcNow.AddSeconds(2)
                 };
-            }, options);
+            });
 
             // 1. check if value is created - shouldn't
             Assert.False(testInstance.IsValueCreated());
@@ -68,6 +67,9 @@ namespace AsyncExpiringLazy.Tests
             
             // 14. check if value does not exist after disposal
             Assert.False(testInstance.IsValueCreated());
+
+            // 15. Getting value should throw exception because internals are disposed
+            await Assert.ThrowsAsync<ObjectDisposedException>(testInstance.Value);
         }
     }
 }

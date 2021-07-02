@@ -1,5 +1,5 @@
 using System;
-using System.Threading;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using AsyncExpiringLazy;
 
@@ -7,84 +7,96 @@ namespace Strathweb
 {
     public class EagerAsyncExpiringLazy<T> : IDisposable
     {
-        private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> _valueProvider;
-        private readonly EagerAsyncExpiringLazyOptions _options;
         private ExpirationMetadata<T> _value;
 
-        private readonly AsyncManualResetEvent _resetEvent = new AsyncManualResetEvent();
-        private readonly Task _valueMonitor;
-        private int _valueMonitorStarted;
+        private readonly BackgroundMonitor<T> _monitor;
+        private readonly object _lock = new object();
+        private readonly AsyncManualResetEvent _itemPrepared = new AsyncManualResetEvent();
+        private bool _disposed;
 
-        public EagerAsyncExpiringLazy(Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> valueProvider, EagerAsyncExpiringLazyOptions options)
+        public EagerAsyncExpiringLazy(Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> valueProvider)
         {
-            if (valueProvider == null) throw new ArgumentNullException(nameof(valueProvider));
-            _valueProvider = valueProvider;
-            _options = options;
-            _valueMonitor = new Task(async () => await MonitorValueExpiration());
+            _valueProvider = valueProvider ?? throw new ArgumentNullException(nameof(valueProvider));
+            _monitor = new BackgroundMonitor<T>(GetNewItem, OnNewItem);
         }
 
-        private async Task MonitorValueExpiration()
+        public bool IsValueCreated()
         {
-            try
+            lock (_lock)
             {
-                while (!_cts.IsCancellationRequested)
-                {
-                    if (_value.Result == null || IsValueExpiringSoonInternal)
-                    {
-                        var result = await _valueProvider(_value).ConfigureAwait(false);
-                        _resetEvent.Reset();
-                        _value = result;
-                        _resetEvent.Set();
-                    }
-
-                    var checkAgainIn = CalculateNextIterationTime(_value);
-                    await Task.Delay(checkAgainIn, _cts.Token);
-                }
-            }
-            catch (TaskCanceledException)
-            {
-            }
-            catch (ObjectDisposedException)
-            {
+                return _value.Result != null;
             }
         }
-
-        private TimeSpan CalculateNextIterationTime(ExpirationMetadata<T> metadata)
-        {
-            var unusableIn = metadata.ValidUntil - DateTimeOffset.UtcNow;
-            var alreadyNeedsRefresh = unusableIn < _options.MinimumRemainingTime;
-            return alreadyNeedsRefresh ? TimeSpan.FromTicks(1) : unusableIn;
-        }
-
-        private bool IsValueExpiringSoonInternal =>
-            _value.Result != null &&
-            _value.ValidUntil - DateTimeOffset.UtcNow < _options.MinimumRemainingTime;
-
-        public bool IsValueCreated() => _resetEvent.IsSet;
 
         public async Task<T> Value()
         {
-            if (Interlocked.CompareExchange(ref _valueMonitorStarted, 1, 0) == 0)
+            if (_disposed)
             {
-                _valueMonitor.Start();
+                throw new ObjectDisposedException(nameof(EagerAsyncExpiringLazy<T>), "Background monitor is disposed");
             }
 
-            await _resetEvent.WaitAsync();
-            return _value.Result;
+            _monitor.StartIfNotStarted();
+            await _itemPrepared.WaitAsync();
+
+            lock (_lock)
+            {
+                if (_value.ValidUntil > DateTimeOffset.UtcNow)
+                {
+                    return _value.Result;
+                }
+            }
+
+            Debug.WriteLine("Background monitor was not able to provide usable item, creating new manually");
+            var newItem = await GetNewItem();
+            OnNewItem(newItem);
+            return newItem.Result;
+        }
+
+        private async Task<ExpirationMetadata<T>> GetNewItem()
+        {
+            ExpirationMetadata<T> copy;
+            lock (_lock)
+            {
+                copy = _value;
+            }
+            
+            return await _valueProvider(copy);
+        }
+
+        private void OnNewItem(ExpirationMetadata<T> newItem)
+        {
+            lock(_lock)
+            {
+                _value = newItem;
+
+                if (!_itemPrepared.IsSet)
+                {
+                    _itemPrepared.Set();
+                }
+            }
         }
 
         public void Invalidate()
         {
-            _resetEvent.Reset();
-            _value = default;
+            lock (_lock)
+            {
+                _itemPrepared.Reset();
+                _value = default;
+            }
         }
 
         public void Dispose()
         {
-            _cts.Cancel();
-            _cts.Dispose();
-            Invalidate();
+            lock (_lock)
+            {
+                if (_disposed) return;
+
+                _monitor.Dispose();
+                _itemPrepared.Reset();
+                _value = default;
+                _disposed = true;
+            }
         }
     }
 }
