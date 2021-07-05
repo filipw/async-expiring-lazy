@@ -67,7 +67,26 @@ namespace Strathweb
                 copy = _value;
             }
 
-            return await _valueProvider(copy).ConfigureAwait(false);
+            try
+            {
+                return await _valueProvider(copy).ConfigureAwait(false);
+            }
+            catch (Exception e)
+            {
+                OnException(e);
+                throw;
+            }
+        }
+
+        private void OnException(Exception e)
+        {
+            lock (_lock)
+            {
+                if (_itemPrepared.IsSet) 
+                    _itemPrepared.Reset();
+                
+                _itemPrepared.SetException(e);
+            }
         }
 
         private void OnNewItem(ExpirationMetadata<T> newItem)
@@ -75,7 +94,6 @@ namespace Strathweb
             lock (_lock)
             {
                 _value = newItem;
-
                 if (!_itemPrepared.IsSet)
                 {
                     _itemPrepared.Set();

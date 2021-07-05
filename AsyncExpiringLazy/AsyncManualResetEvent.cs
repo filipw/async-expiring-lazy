@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace AsyncExpiringLazy
 {
@@ -18,6 +19,11 @@ namespace AsyncExpiringLazy
             get { lock (_mutex) return _tcs.Task.IsCompleted; }
         }
 
+        public bool IsFaulted
+        {
+            get { lock (_mutex) return _tcs.Task.IsFaulted; }
+        }
+
         public Task WaitAsync()
         {
             lock (_mutex)
@@ -31,6 +37,14 @@ namespace AsyncExpiringLazy
             lock (_mutex)
             {
                 _tcs.TrySetResult(null);
+            }
+        }
+
+        public void SetException(Exception e)
+        {
+            lock (_mutex)
+            {
+                _tcs.TrySetException(e);
             }
         }
 

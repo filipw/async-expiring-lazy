@@ -51,10 +51,6 @@ namespace AsyncExpiringLazy
                 catch (ObjectDisposedException)
                 {
                 }
-                catch (Exception e)
-                {
-                    Debug.WriteLine($"Background monitor caught unexpected error: {e}");
-                }
             }
 
             Debug.WriteLine("Cancellation requested, stopping background monitor");

@@ -10,7 +10,7 @@ namespace AsyncExpiringLazy.Tests
         [Fact]
         public async Task End2End()
         {
-            var testInstance = new AsyncExpiringEager<TokenResponse>(async metadata =>
+            using var testInstance = new AsyncExpiringEager<TokenResponse>(async metadata =>
             {
                 await Task.Delay(1000);
                 return new ExpirationMetadata<TokenResponse>
@@ -70,6 +70,32 @@ namespace AsyncExpiringLazy.Tests
 
             // 15. Getting value should throw exception because internals are disposed
             await Assert.ThrowsAsync<ObjectDisposedException>(testInstance.Value);
+        }
+
+        [Fact]
+        public async Task HandlesExceptionOnFirstCall()
+        {
+            using var testInstance = new AsyncExpiringEager<TokenResponse>(_ => throw new Exception());
+            await Assert.ThrowsAsync<Exception>(testInstance.Value);
+        }
+
+        [Fact]
+        public async Task HandlesExceptionsFromNextIterations()
+        {
+            int counter = 0;
+            using var testInstance = new AsyncExpiringEager<TokenResponse>(_ =>
+            {
+                counter++;
+                throw new Exception(counter.ToString());
+            });
+            
+            // 1. Sleep, new token should be retrieved. But this time call should fail and exception should be received
+            var exception1 = await Assert.ThrowsAsync<Exception>(testInstance.Value);
+
+            // 2. Sleep for next seconds, we should still receive old exception
+            await Task.Delay(2000);
+            var exception2 = await Assert.ThrowsAsync<Exception>(testInstance.Value);
+            Assert.Same(exception1, exception2);
         }
     }
 }
