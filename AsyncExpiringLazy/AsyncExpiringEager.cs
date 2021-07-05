@@ -74,7 +74,7 @@ namespace Strathweb
             catch (Exception e)
             {
                 OnException(e);
-                throw;
+                return default;
             }
         }
 
@@ -82,6 +82,8 @@ namespace Strathweb
         {
             lock (_lock)
             {
+                _monitor.Stop();
+
                 if (_itemPrepared.IsSet) 
                     _itemPrepared.Reset();
                 

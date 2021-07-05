@@ -12,7 +12,7 @@ namespace AsyncExpiringLazy
         private readonly Action<ExpirationMetadata<T>> _onNewItem;
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         private readonly Task _monitorTask;
-        private int _monitorStarted;
+        private int _monitorStatus;
 
         public BackgroundMonitor(Func<Task<ExpirationMetadata<T>>> factory, Action<ExpirationMetadata<T>> onNewItem)
         {
@@ -23,9 +23,17 @@ namespace AsyncExpiringLazy
 
         public void StartIfNotStarted()
         {
-            if (Interlocked.CompareExchange(ref _monitorStarted, 1, 0) == 0)
+            if (Interlocked.CompareExchange(ref _monitorStatus, 1, 0) == 0)
             {
                 _monitorTask.Start();
+            }
+        }
+
+        public void Stop()
+        {
+            if (Interlocked.CompareExchange(ref _monitorStatus, -1, 1) == 1)
+            {
+                _cts.Cancel();
             }
         }
 
@@ -36,6 +44,7 @@ namespace AsyncExpiringLazy
                 try
                 {
                     var metadata = await _factory().ConfigureAwait(false);
+                    if (metadata.Result == null) continue;
                     NotifyAboutNewItem(metadata);
 
                     var expiresIn = metadata.ExpiresIn;
