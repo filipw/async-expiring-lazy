@@ -41,7 +41,10 @@ namespace AsyncExpiringLazy.Tests
             // 5. sleep for 2 seconds to let the value expire
             await Task.Delay(2000);
 
-            // 6. fetch again
+            // 6a. verify the value expired
+            Assert.False(await testInstance.IsValueCreated());
+
+            // 6b. fetch again
             var token3 = await testInstance.Value();
 
             // 7. verify we now have a new (recreated) value - as the previous one expired
