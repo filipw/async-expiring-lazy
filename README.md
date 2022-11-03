@@ -5,10 +5,10 @@ See [blog article](https://www.strathweb.com/2016/11/lazy-async-initialization-f
 
 ## Installation
 
-Grab the Nuget package called [Strathweb.AsyncExpiringLazy](https://www.nuget.org/packages/Strathweb.AsyncExpiringLazy/). Built with .NET Standard 1.1 and compatible with:
+Grab the Nuget package called [Strathweb.AsyncExpiringLazy](https://www.nuget.org/packages/Strathweb.AsyncExpiringLazy/). It is cross compiled for .NET Standard 1.1, .NET Standard 2.0 and .NET Framework 4.6.1 and compatible with:
 
- - .NET 4.5+
- - .NET Core
+ - .NET Framework 4.6.1
+ - all version of .NET Core
  - Xamarin
  - Mono
  - Universal Windows Platform
