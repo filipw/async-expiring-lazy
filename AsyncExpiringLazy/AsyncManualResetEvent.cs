@@ -1,7 +1,8 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 
-namespace AsyncExpiringLazy
+namespace Strathweb
 {
     sealed class AsyncManualResetEvent
     {
@@ -24,11 +25,21 @@ namespace AsyncExpiringLazy
             get { lock (_mutex) return _tcs.Task.IsFaulted; }
         }
 
-        public Task WaitAsync()
+        public Task WaitAsync(CancellationToken ct)
         {
+            if (ct.IsCancellationRequested)
+                return Task.FromCanceled(ct);
+            
             lock (_mutex)
             {
-                return _tcs.Task;
+                if (_tcs.Task.IsCompleted)
+                    return _tcs.Task;
+                
+                var cancellationCts = new TaskCompletionSource<object>(TaskCreationOptions.RunContinuationsAsynchronously);
+                using (ct.Register(() => cancellationCts.TrySetCanceled(ct)))
+                {
+                    return Task.WhenAny(_tcs.Task, cancellationCts.Task).Unwrap();
+                }
             }
         }
 

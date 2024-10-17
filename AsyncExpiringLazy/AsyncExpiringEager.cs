@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
-using AsyncExpiringLazy;
 
 namespace Strathweb
 {
@@ -13,7 +13,7 @@ namespace Strathweb
     /// <typeparam name="T"></typeparam>
     public class AsyncExpiringEager<T> : IDisposable
     {
-        private readonly Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> _valueProvider;
+        private readonly Func<ExpirationMetadata<T>, CancellationToken, Task<ExpirationMetadata<T>>> _valueProvider;
         private ExpirationMetadata<T> _value;
 
         private readonly BackgroundMonitor<T> _monitor;
@@ -21,7 +21,7 @@ namespace Strathweb
         private readonly AsyncManualResetEvent _itemPrepared = new AsyncManualResetEvent();
         private bool _disposed;
 
-        public AsyncExpiringEager(Func<ExpirationMetadata<T>, Task<ExpirationMetadata<T>>> valueProvider)
+        public AsyncExpiringEager(Func<ExpirationMetadata<T>, CancellationToken, Task<ExpirationMetadata<T>>> valueProvider)
         {
             _valueProvider = valueProvider ?? throw new ArgumentNullException(nameof(valueProvider));
             _monitor = new BackgroundMonitor<T>(GetNewItem, OnNewItem);
@@ -35,7 +35,7 @@ namespace Strathweb
             }
         }
 
-        public async Task<T> Value()
+        public async Task<T> Value(CancellationToken ct = default)
         {
             if (_disposed)
             {
@@ -43,7 +43,7 @@ namespace Strathweb
             }
 
             _monitor.StartIfNotStarted();
-            await _itemPrepared.WaitAsync().ConfigureAwait(false);
+            await _itemPrepared.WaitAsync(ct).ConfigureAwait(false);
 
             lock (_lock)
             {
@@ -54,12 +54,12 @@ namespace Strathweb
             }
 
             Debug.WriteLine("Background monitor was not able to provide usable item, creating new manually");
-            var newItem = await GetNewItem().ConfigureAwait(false);
+            var newItem = await GetNewItem(ct).ConfigureAwait(false);
             OnNewItem(newItem);
             return newItem.Result;
         }
 
-        private async Task<ExpirationMetadata<T>> GetNewItem()
+        private async Task<ExpirationMetadata<T>> GetNewItem(CancellationToken ct)
         {
             ExpirationMetadata<T> copy;
             lock (_lock)
@@ -69,7 +69,7 @@ namespace Strathweb
 
             try
             {
-                return await _valueProvider(copy).ConfigureAwait(false);
+                return await _valueProvider(copy, ct).ConfigureAwait(false);
             }
             catch (Exception e)
             {
@@ -84,9 +84,9 @@ namespace Strathweb
             {
                 _monitor.Stop();
 
-                if (_itemPrepared.IsSet) 
+                if (_itemPrepared.IsSet)
                     _itemPrepared.Reset();
-                
+
                 _itemPrepared.SetException(e);
             }
         }
