@@ -18,7 +18,7 @@ namespace Strathweb
         {
             _factory = factory;
             _onNewItem = onNewItem;
-            _monitorTask = new Task(async () => await RunMonitor(_cts.Token).ConfigureAwait(false));
+            _monitorTask = new Task(async () => await RunMonitor().ConfigureAwait(false));
         }
 
         public void StartIfNotStarted()
@@ -37,14 +37,14 @@ namespace Strathweb
             }
         }
 
-        private async Task RunMonitor(CancellationToken ct)
+        private async Task RunMonitor()
         {
-            while (!ct.IsCancellationRequested)
+            while (!_cts.IsCancellationRequested)
             {
                 try
                 {
                     // Pass the cancellation token to the factory method
-                    var metadata = await _factory(ct).ConfigureAwait(false);
+                    var metadata = await _factory(_cts.Token).ConfigureAwait(false);
                     if (metadata.Result == null) continue;
 
                     NotifyAboutNewItem(metadata);
@@ -53,7 +53,7 @@ namespace Strathweb
                     if (expiresIn > TimeSpan.Zero)
                     {
                         Debug.WriteLine($"Sleeping the connection monitor for {expiresIn.TotalSeconds} seconds");
-                        await Task.Delay(expiresIn, ct).ConfigureAwait(false);
+                        await Task.Delay(expiresIn, _cts.Token).ConfigureAwait(false);
                     }
                 }
                 catch (TaskCanceledException)
@@ -73,7 +73,7 @@ namespace Strathweb
 
         public void Dispose()
         {
-            _cts.Cancel();
+            Stop();
             _cts.Dispose();
         }
     }
