@@ -10,9 +10,9 @@ namespace AsyncExpiringLazy.Tests
         [Fact]
         public async Task End2End()
         {
-            using var testInstance = new AsyncExpiringEager<TokenResponse>(async metadata =>
+            using var testInstance = new AsyncExpiringEager<TokenResponse>(async (metadata, ct) =>
             {
-                await Task.Delay(1000);
+                await Task.Delay(1000, ct);
                 return new ExpirationMetadata<TokenResponse>
                 {
                     Result = new TokenResponse
@@ -72,32 +72,32 @@ namespace AsyncExpiringLazy.Tests
             Assert.False(testInstance.IsValueCreated());
 
             // 15. Getting value should throw exception because internals are disposed
-            await Assert.ThrowsAsync<ObjectDisposedException>(testInstance.Value);
+            await Assert.ThrowsAsync<ObjectDisposedException>(() => testInstance.Value());
         }
 
         [Fact]
         public async Task HandlesExceptionOnFirstCall()
         {
-            using var testInstance = new AsyncExpiringEager<TokenResponse>(_ => throw new Exception());
-            await Assert.ThrowsAsync<Exception>(testInstance.Value);
+            using var testInstance = new AsyncExpiringEager<TokenResponse>((_, __) => throw new Exception());
+            await Assert.ThrowsAsync<Exception>(() => testInstance.Value());
         }
 
         [Fact]
         public async Task HandlesExceptionsFromNextIterations()
         {
             int counter = 0;
-            using var testInstance = new AsyncExpiringEager<TokenResponse>(_ =>
+            using var testInstance = new AsyncExpiringEager<TokenResponse>((_, __) =>
             {
                 counter++;
                 throw new Exception(counter.ToString());
             });
             
             // 1. Sleep, new token should be retrieved. But this time call should fail and exception should be received
-            var exception1 = await Assert.ThrowsAsync<Exception>(testInstance.Value);
+            var exception1 = await Assert.ThrowsAsync<Exception>(() => testInstance.Value());
 
             // 2. Sleep for next seconds, we should still receive old exception
             await Task.Delay(2000);
-            var exception2 = await Assert.ThrowsAsync<Exception>(testInstance.Value);
+            var exception2 = await Assert.ThrowsAsync<Exception>(() => testInstance.Value());
             Assert.Same(exception1, exception2);
         }
     }

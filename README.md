@@ -20,9 +20,9 @@ Latest version: [![Nuget](http://img.shields.io/nuget/v/Strathweb.AsyncExpiringL
 The code sample shows creating a lazy epxiring value with `AsyncExpiringLazy<T>` and letting it get recreated on first reuse after expiration.
 
 ```csharp
-var testInstance = new AsyncExpiringLazy<TokenResponse>(async metadata =>
+var testInstance = new AsyncExpiringLazy<TokenResponse>(async (metadata, ct) =>
 {
-    await Task.Delay(1000);
+    await Task.Delay(1000, ct);
     return new ExpirationMetadata<TokenResponse>
     {
         Result = new TokenResponse
@@ -71,9 +71,9 @@ The next code sample shows creating a lazy epxiring value with `AsyncExpiringEag
 Pay attetion to the different from the previous example at step `6a`.
 
 ```csharp
-using var testInstance = new AsyncExpiringEager<TokenResponse>(async metadata =>
+using var testInstance = new AsyncExpiringEager<TokenResponse>(async (metadata, ct) =>
 {
-    await Task.Delay(1000);
+    await Task.Delay(1000, ct);
     return new ExpirationMetadata<TokenResponse>
     {
         Result = new TokenResponse
